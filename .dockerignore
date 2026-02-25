@@ -1,0 +1,12 @@
+model/
+cache/
+selected_checkpoints/
+spliceai_data/*.h5
+AudioMNIST/
+__pycache__/
+.git/
+*.pyc
+env/
+notebooks/
+output/
+poppler_bundle/

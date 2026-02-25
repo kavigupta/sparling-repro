@@ -1,0 +1,16 @@
+# Data (managed via symlinks or tar.gz archives)
+selected_checkpoints
+spliceai_data
+AudioMNIST
+cache
+cache.db
+cache.db-journal
+
+# Python
+__pycache__
+*.pyc
+.pytest_cache
+
+# Misc
+model
+Untitled.ipynb
