@@ -68,7 +68,10 @@ As an alternative to training, you can download pre-trained checkpoints (~126 GB
 
 ## Running tests
 
-Tests require the pre-trained checkpoints (either trained locally or downloaded).
+The test suite is a regression test against the pre-trained checkpoints
+downloaded by `download_checkpoints.sh`. It is useful for verifying that
+your environment is set up correctly, but will not pass against newly
+trained models (which will have different weights).
 
 ```sh
 python -m pytest tests/ -v
