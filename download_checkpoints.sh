@@ -1,11 +1,15 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Download required data (spliceai_data, AudioMNIST) and set up cache dir.
+# Download pre-trained model checkpoints from Hugging Face.
+#
+# This is an alternative to training models yourself and running
+# select_checkpoints.py.  The checkpoints are extracted into
+# selected_checkpoints/.
 #
 # Usage:
-#   ./setup_data.sh                       # download from Hugging Face
-#   ./setup_data.sh /path/to/archives     # use local archive files
+#   ./download_checkpoints.sh                   # download from Hugging Face
+#   ./download_checkpoints.sh /path/to/archives # use local archive files
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ARCHIVE_DIR="${1:-}"
@@ -13,12 +17,15 @@ ARCHIVE_DIR="${1:-}"
 HF_REPO="kavigupta/sparling-repro-data"
 HF_URL="https://huggingface.co/datasets/${HF_REPO}/resolve/main"
 
+ARCHIVES=(
+    selected_checkpoints_pae_early.tar.gz
+    selected_checkpoints_pae_late.tar.gz
+    selected_checkpoints_other.tar.gz
+)
+
 cd "$SCRIPT_DIR"
 
-download_and_extract() {
-    local archive="$1"
-    local tarball
-
+for archive in "${ARCHIVES[@]}"; do
     if [[ -n "$ARCHIVE_DIR" ]]; then
         tarball="${ARCHIVE_DIR}/${archive}"
     else
@@ -31,7 +38,7 @@ download_and_extract() {
 
     if [[ ! -f "$tarball" ]]; then
         echo "WARNING: ${tarball} not found, skipping."
-        return 1
+        continue
     fi
 
     echo "Extracting ${archive} ..."
@@ -41,23 +48,6 @@ download_and_extract() {
     if [[ -z "$ARCHIVE_DIR" ]]; then
         rm -f "$tarball"
     fi
-}
+done
 
-# spliceai_data
-if [[ -d "spliceai_data" ]]; then
-    echo "spliceai_data/ already exists, skipping."
-else
-    download_and_extract spliceai_data.tar.gz
-fi
-
-# AudioMNIST
-if [[ -d "AudioMNIST" ]]; then
-    echo "AudioMNIST/ already exists, skipping."
-else
-    echo "Cloning AudioMNIST ..."
-    git clone https://github.com/soerenab/AudioMNIST.git AudioMNIST
-fi
-
-mkdir -p cache
-
-echo "Data setup complete."
+echo "Checkpoints downloaded to selected_checkpoints/."

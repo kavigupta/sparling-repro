@@ -13,17 +13,10 @@ pip install -r requirements.txt
 
 ### 2. Download data
 
-Download and extract checkpoint archives from Hugging Face, and clone AudioMNIST:
+Download spliceai data and AudioMNIST:
 
 ```sh
 ./setup_data.sh
-```
-
-This downloads ~126 GB of archives, extracts them, and cleans up. To use
-local archive files instead (e.g., if you already downloaded them):
-
-```sh
-./setup_data.sh /path/to/archives
 ```
 
 ### 3. Generate latex data
@@ -31,12 +24,6 @@ local archive files instead (e.g., if you already downloaded them):
 ```sh
 PYTHONPATH=. python -u pixel_art/scripts/generate_latex_data.py
 PYTHONPATH=. python -u pixel_art/scripts/generate_latex_motif_data.py
-```
-
-### 4. Run tests
-
-```sh
-python -m pytest tests/ -v
 ```
 
 ## Training
@@ -55,6 +42,12 @@ Main experiments:
 - `ltx-4dc3`: retrained experiments
 - `pae-11bb1`, `ltx-5dc3`, `aum-4ka1`: experiments training motifs directly
 
+After training, select checkpoints for evaluation:
+
+```sh
+python select_checkpoints.py
+```
+
 Then run `all-results.ipynb` to generate the tables and figures.
 
 Other experiments:
@@ -64,3 +57,19 @@ Other experiments:
 - `pae-2ba2`: ablation without batch normalization. See `pixel-art-results.ipynb`
 - `pae-9bai1`, `pae-9bal1`, `pae-9bao1`, `pae-9bar1`, `pae-9bau1`, `pae-9bax1`, `pae-9baza1`: KL baselines with lambda values 0.1, 1, 10, 100, 1000, 10000, 100000. See `pixel-art-kl.ipynb`
 - `pae-8bia1`, `pae-8bil1`, `pae-8bim1`, `pae-8bin1`, `pae-8bio1`: L1 baselines with lambda values 0.1, 1, 2, 5, 10. See `pixel-art-l1.ipynb`
+
+## Using pre-trained checkpoints
+
+As an alternative to training, you can download pre-trained checkpoints (~126 GB):
+
+```sh
+./download_checkpoints.sh
+```
+
+## Running tests
+
+Tests require the pre-trained checkpoints (either trained locally or downloaded).
+
+```sh
+python -m pytest tests/ -v
+```
