@@ -25,7 +25,7 @@ download_and_extract() {
         tarball="${SCRIPT_DIR}/${archive}"
         if [[ ! -f "$tarball" ]]; then
             echo "Downloading ${archive} ..."
-            curl -L -o "$tarball" "${HF_URL}/${archive}"
+            curl -L --retry 5 --retry-delay 10 -C - -o "$tarball" "${HF_URL}/${archive}"
         fi
     fi
 

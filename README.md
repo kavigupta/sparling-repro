@@ -73,6 +73,10 @@ downloaded by `download_checkpoints.sh`. It is useful for verifying that
 your environment is set up correctly, but will not pass against newly
 trained models (which will have different weights).
 
+Hash-based tests may produce different results across environments
+(e.g., different OS, library versions, or floating-point behavior).
+All other tests should pass.
+
 ```sh
 python -m pytest tests/ -v
 ```

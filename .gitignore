@@ -4,5 +4,7 @@ cache.db
 cache.db-journal
 Untitled.ipynb
 selected_checkpoints
-spliceai_data/*.h5
-data_archives
+spliceai_data
+AudioMNIST
+__pycache__
+*.pyc
