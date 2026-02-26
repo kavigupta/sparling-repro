@@ -8,10 +8,10 @@ purple = "#bd80ff"
 
 color_series = [blue, orange, green, pink, purple]
 
-color_fpe = blue
-color_fne = orange
-color_ce = green
-color_e2e = pink
+color_fpe = orange
+color_fne = green
+color_ce = pink
+color_e2e = blue
 
 color_by_column = {
     "fpe": color_fpe,

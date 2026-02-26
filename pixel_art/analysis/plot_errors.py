@@ -163,7 +163,7 @@ def plot_error_vs_sparsity_for_domain(ax, domain, result, columns):
             label=columns[column],
             color=darken(color_by_column[column]),
         )
-        ax.fill_between(sparsities, lo, hi, alpha=0.25)
+        ax.fill_between(sparsities, lo, hi, alpha=0.25, color=color_by_column[column])
     ax.set_xscale("log")
     ax.set_xlim(ax.get_xlim()[::-1])
     ax.legend()
