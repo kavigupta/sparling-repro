@@ -5,7 +5,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 # System packages: Python 3.9 (matching host), texlive-full (matching host),
 # PDF tools, audio library
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    software-properties-common gnupg curl \
+    software-properties-common gnupg curl git \
     && add-apt-repository ppa:deadsnakes/ppa \
     && apt-get update && apt-get install -y --no-install-recommends \
     python3.9 \
@@ -35,9 +35,10 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy repo source (large data excluded via .dockerignore)
 COPY . .
 
-# Create mount points and writable dirs
-RUN mkdir -p /app/selected_checkpoints /app/AudioMNIST /app/cache
-
 ENV PYTHONPATH=/app
+
+# Download data and checkpoints
+RUN ./setup_data.sh
+RUN ./download_checkpoints.sh
 
 CMD ["python", "-m", "pytest", "tests/", "-v"]
