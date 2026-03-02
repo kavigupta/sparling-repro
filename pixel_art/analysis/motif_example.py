@@ -5,9 +5,9 @@ import matplotlib as mpl
 import numpy as np
 import torch
 from matplotlib import pyplot as plt
-
 from pixel_art.analysis.evaluate_motifs import evaluate_motifs
 from pixel_art.domain.stamp import digit_stamps
+from pixel_art.theme import color_series, darken
 
 
 def render_single_motif_example(
@@ -24,44 +24,53 @@ def render_single_motif_example(
     motif_offset=(0, 0),
     backmap,
 ):
-    i_s, j_s = np.where((mot != 0).any(0))
-    mot = mot[:, i_s, j_s]
-    unique = (mot != 0).sum(0) == 1
+    R = 5
+    c_s, i_s, j_s = np.where((mot != 0))
+    mot_sparse = mot[c_s, i_s, j_s]
+
+    points = []
+    is_unique = []
+    for idx in range(len(c_s)):
+        i, j, c = i_s[idx], j_s[idx], c_s[idx]
+
+        nearby = (np.abs(i_s - i) <= R) & (np.abs(j_s - j) <= R)
+        if mot_sparse[nearby].max() != mot_sparse[idx]:
+            continue
+        points.append((i, j, c))
+        is_unique.append(nearby.sum() == 1)
+
     ax.imshow(
         x,
         cmap="gray_r" if invert else "gray",
-        alpha=0.25 if show_motifs else 1,
+        alpha=0.5 if show_motifs else 1,
         aspect=x.shape[1] / x.shape[0] * stretch if stretch is not None else 1,
     )
     ax.set_title(title_fn(y))
     if not show_motifs:
         return
-    import seaborn as sns
-
-    if len(backmap) <= 20:
-        colors = sns.color_palette("tab20", len(backmap))
-    elif len(backmap) == 21:
-        colors = sns.color_palette("tab20") + [(0, 0, 0)]
-    else:
-        colors = sns.color_palette("tab20", len(backmap))
+    n_channels = mot.shape[0]
+    colors = [darken(color_series[i % len(color_series)]) for i in range(len(backmap))]
     mot_names = (
         string.ascii_uppercase
-        if mot.shape[0] <= 26
-        else [f"#{i:02d}" for i in range(mot.shape[0])]
+        if n_channels <= 26
+        else [f"#{i:02d}" for i in range(n_channels)]
     )
-    for i, c in enumerate(mot_names[: mot.shape[0]]):
-        for is_unique in True, False:
-            mask = (mot.argmax(0) == i) & (unique == is_unique)
-            if sum(mask) == 0:
-                continue
-            ax.scatter(
-                j_s[mask] + motif_offset[0],
-                i_s[mask] + motif_offset[1],
-                marker="." if is_unique else "*",
-                label=c + ("" if is_unique else "*"),
-                s=marker_size,
-                color=colors[backmap[i]],
-            )
+    for (i, j, c), u in zip(points, is_unique):
+        color = colors[backmap[c]]
+        ax.plot(
+            j + motif_offset[0], i + motif_offset[1],
+            "." if u else "*",
+            color=color, markersize=3,
+        )
+        name = mot_names[c]
+        label = name if u else name + "*"
+        ax.text(
+            j + motif_offset[0], i + motif_offset[1], label,
+            color=color,
+            fontsize=8, fontweight="bold",
+            ha="center", va="bottom",
+            bbox=dict(facecolor="white", alpha=0.6, edgecolor="none", pad=0.5),
+        )
 
 
 def render_examples_from_data(
@@ -78,8 +87,6 @@ def render_examples_from_data(
     side="bottom",
     **kwargs,
 ):
-    handles, texts = [], []
-
     backmap = {x: i for i, x in enumerate(np.where(mots.any((0, 2, 3)))[0])}
 
     for i in range(len(axs)):
@@ -96,33 +103,8 @@ def render_examples_from_data(
             motif_offset=motif_offset,
             backmap=backmap,
         )
-        h, t = axs[i].get_legend_handles_labels()
         axs[i].set_xticks([])
         axs[i].set_yticks([])
-        handles += h
-        texts += t
-
-    results = {}
-    for text, handle in zip(texts, handles):
-        results[text] = (text, handle)
-    results = sorted(results.items())
-    results = [(x, y) for x, (_, y) in results]
-    if results:
-        if side == "bottom":
-            kwargs.update(dict(loc="lower center", bbox_to_anchor=(0.5, 0)))
-        elif side == "right":
-            kwargs.update(dict(loc="center right", bbox_to_anchor=(1, 0.5)))
-        else:
-            raise ValueError(f"Unknown side {side}")
-        ncol = kwargs.get("ncol", 1)
-        results = list(itertools.chain(*[results[i::ncol] for i in range(ncol)]))
-        texts, handles = zip(*results)
-        axs[-1].legend(
-            handles,
-            texts,
-            prop={"size": 8},
-            **kwargs,
-        )
 
     return (mots != 0).sum((0, 2, 3))
 

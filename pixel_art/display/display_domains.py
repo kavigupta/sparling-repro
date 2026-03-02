@@ -66,6 +66,7 @@ def axes_for_all_domains(width, *, shrink_width):
     plt.figure(
         figsize=(width, width * total_height / total_width / shrink_width),
         tight_layout=True,
+        dpi=200,
     )
 
     # Pixel art

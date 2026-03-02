@@ -5,8 +5,10 @@ orange = "#ffca80"
 green = "#60e37a"
 pink = "#ff80b1"
 purple = "#bd80ff"
+yellow = "#ffec80"
 
-color_series = [blue, orange, green, pink, purple]
+
+color_series = [blue, orange, green, pink, purple, yellow]
 
 color_fpe = orange
 color_fne = green
